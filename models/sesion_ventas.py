@@ -37,6 +37,7 @@ class SesionVenas(models.Model):
     facturas_ids = fields.Many2many("account.invoice","sesion_ventas_facturas_rel",string="Facturas",compute='_compute_facturas_ids')
     pagos_ids = fields.Many2many("account.payment","sesion_ventas_pagos_rel",string="Pagos",compute='_compute_pagos_ids')
     diario_id = fields.Many2one("account.journal","Diario")
+    usuarios_ids = fields.Many2many("res.users",'sesion_ventas_usuarios',string='Usuarios')
 
     @api.multi
     def action_abrir_sesion(self):

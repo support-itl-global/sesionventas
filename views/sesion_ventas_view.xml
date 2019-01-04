@@ -25,6 +25,9 @@
                             <field name="responsable_id"/>
                             <field name="fecha"/>
                         </group>
+                        <group>
+                            <field name="usuarios_ids" widget="many2many_tags"/>
+                        </group>
                     </group>
                     <separator string="Facturas" attrs="{'invisible' : [('estado', '=', 'borrador')]}"/>
                     <field name="facturas_ids" attrs="{'invisible' : [('estado', '=', 'borrador')]}"/>

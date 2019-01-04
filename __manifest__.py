@@ -20,5 +20,6 @@
         'views/sesion_ventas_view.xml',
         'views/sale_views.xml',
         'data/ir_sequence_data.xml',
+        'security/ir.model.access.csv',
     ],
 }
