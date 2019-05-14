@@ -20,11 +20,13 @@ class SesionVenas(models.Model):
 
     def _compute_pagos_ids(self):
         ventas_lista = []
-        ventas = self.env['sale.order'].search([['sesion_ventas_id', '=', self.id]])
-        for venta in ventas:
-            ventas_lista.append(venta.name)
-        pagos = self.env['account.payment'].search([['communication', 'in', ventas_lista]]).ids
-        self.pagos_ids = [(6, 0, pagos)]
+        pagos_lista = []
+        pagos = self.env['account.payment'].search([['invoice_ids', '!=', False]])
+        for pago in pagos:
+            for factura in pago.invoice_ids:
+                if factura.id in self.facturas_ids.ids:
+                    pagos_lista.append(pago.id)
+        self.pagos_ids = [(6, 0, pagos_lista)]
 
     nombre = fields.Char('Sesión',default=lambda self: _('Nuevo'))
     fecha = fields.Date("Fecha",default=datetime.today())
