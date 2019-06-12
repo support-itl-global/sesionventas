@@ -5,7 +5,7 @@
     'summary': """Sesion venas""",
 
     'description': """
-        Grupo HPB
+        Sesion para ventas
     """,
 
     'author': "aquíH",
@@ -19,6 +19,8 @@
     'data': [
         'views/sesion_ventas_view.xml',
         'views/sale_views.xml',
+        'views/account_invoice_view.xml',
+        'views/account_payment_view.xml',
         'data/ir_sequence_data.xml',
         'security/ir.model.access.csv',
     ],
