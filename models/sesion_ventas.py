@@ -29,11 +29,8 @@ class SesionVenas(models.Model):
         self.pagos_ids = [(6, 0, pagos_lista)]
 
     nombre = fields.Char('Sesión',default=lambda self: _('Nuevo'))
-<<<<<<< HEAD
     fecha = fields.Date("Fecha",default=date.today())
-=======
     fecha = fields.Date("Fecha")
->>>>>>> eb3fbcd3fa07ed6170cdf437d47ac0949d49fbc3
     responsable_id = fields.Many2one("res.users","Responsable",default=lambda self: self.env.user)
     estado = fields.Selection([
         ('borrador', 'Borrador'),

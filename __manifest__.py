@@ -21,7 +21,9 @@
         'views/sale_views.xml',
         'views/account_invoice_view.xml',
         'views/account_payment_view.xml',
+        'views/report_cierre_caja.xml',
         'data/ir_sequence_data.xml',
         'security/ir.model.access.csv',
+        'views/report.xml'
     ],
 }
