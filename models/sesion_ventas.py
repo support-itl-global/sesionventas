@@ -16,7 +16,8 @@ class SesionVenas(models.Model):
         for venta in ventas:
             ventas_lista.append(venta.name)
         facturas = self.env['account.invoice'].search([['origin', 'in', ventas_lista]]).ids
-        self.facturas_ids = [(6, 0, facturas)]
+        notas_credito = self.env['account.invoice'].search([('state','in',['open','paid']),('type','=','out_refund'),('sesion_ventas_id','=',self.id)]).ids
+        self.facturas_ids = [(6, 0, facturas+notas_credito)]
 
     def _compute_pagos_ids(self):
         ventas_lista = []

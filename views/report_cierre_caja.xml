@@ -79,6 +79,10 @@
                                 <td style="text-align:right"><t t-esc="_datos_ingresos(o)['pago_credito']" t-options='{"widget": "monetary", "display_currency": o.responsable_id.company_id.currency_id}'/></td>
                             </tr>
                             <tr>
+                                <td style="text-align:left">Anticipo</td>
+                                <td style="text-align:right"><t t-esc="_datos_ingresos(o)['anticipo']" t-options='{"widget": "monetary", "display_currency": o.responsable_id.company_id.currency_id}'/></td>
+                            </tr>
+                            <tr>
                                 <td style="text-align:left;border-top: 2px solid"><b>Total caja</b></td>
                                 <td style="text-align:right;border-top: 2px solid"><b><t t-esc="_datos_ingresos(o)['total_caja']" t-options='{"widget": "monetary", "display_currency": o.responsable_id.company_id.currency_id}'/></b></td>
                             </tr>
@@ -94,6 +98,8 @@
                         <br/>
                         <center><h4>Detalle de Transacciones</h4></center>
                         <p align="left"><b><h6>Ventas</h6></b></p>
+                        <t t-set="total_facturas" t-value="0"/>
+                        <t t-set="total_pagos" t-value="0"/>
                         <table class="table table-condensed">
                             <thead>
                                 <tr>
@@ -116,8 +122,14 @@
                                         <td><t t-esc="factura.reference"/></td>
                                         <td><t t-esc="factura.amount_total_signed"/></td>
                                         <td><t t-esc="factura.state"/></td>
+                                        <t t-set="total_facturas" t-value="total_facturas + factura.amount_total_signed"/>
                                     </tr>
                                 </t>
+                                <tr>
+                                    <td colspan="4"></td>
+                                    <td><b>TOTAL</b></td>
+                                    <td><b><span t-esc="total_facturas"/></b></td>
+                                </tr>
                             </tbody>
                         </table>
                         <p align="left"><b><h6>Pagos</h6></b></p>
@@ -143,10 +155,87 @@
                                         <td><t t-esc="pago.journal_id.name"/></td>
                                         <td><t t-esc="pago.amount"/></td>
                                         <td><t t-esc="pago.state"/></td>
+                                        <t t-set="total_pagos" t-value="total_pagos + pago.amount"/>
                                     </tr>
                                 </t>
+                                <tr>
+                                    <td colspan="4"></td>
+                                    <td><b>TOTAL</b></td>
+                                    <td><b><span t-esc="total_pagos"/></b></td>
+                                </tr>
                             </tbody>
                         </table>
+                        <p align="left"><b><h6>Facturas y pagos sin sesión</h6></b></p>
+                        <p align="left"><b><h6>Facturas</h6></b></p>
+                        <t t-set="total_facturas" t-value="0"/>
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Numero Fact</th>
+                                    <th>Origen</th>
+                                    <th>Ref Pago</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="facturas_pagos(o)['facturas_ids']" t-as="factura">
+                                    <tr>
+                                        <td><t t-esc="factura['fecha']" t-options='{"widget": "date"}'/></td>
+                                        <td><t t-esc="factura['cliente']"/></td>
+                                        <td><t t-esc="factura['numero']"/></td>
+                                        <td><t t-esc="factura['origen']"/></td>
+                                        <td><t t-esc="factura['ref_pago']"/></td>
+                                        <td><t t-esc="factura['total']"/></td>
+                                        <td><t t-esc="factura['estado']"/></td>
+                                        <t t-set="total_facturas" t-value="total_facturas + factura['total']"/>
+                                    </tr>
+                                </t>
+                                <tr>
+                                    <td colspan="4"></td>
+                                    <td><b>TOTAL</b></td>
+                                    <td><b><span t-esc="total_facturas"/></b></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <p align="left"><b><h6>Pagos</h6></b></p>
+                        <t t-set="total_pagos" t-value="0"/>
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Numero Pago</th>
+                                    <th>Origen</th>
+                                    <th>Diario de pago</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="facturas_pagos(o)['pagos_ids']" t-as="pago">
+                                    <tr>
+                                        <td><t t-esc="pago['fecha']" t-options='{"widget": "date"}'/></td>
+                                        <td><t t-esc="pago['cliente']"/></td>
+                                        <td><t t-esc="pago['numero_pago']"/></td>
+                                        <td><t t-esc="pago['origen']"/></td>
+                                        <td><t t-esc="pago['diario']"/></td>
+                                        <td><t t-esc="pago['total']"/></td>
+                                        <td><t t-esc="pago['estado']"/></td>
+                                        <t t-set="total_pagos" t-value="total_pagos + pago['total']"/>
+                                    </tr>
+                                </t>
+                                <tr>
+                                    <td colspan="4"></td>
+                                    <td><b>TOTAL</b></td>
+                                    <td><b><span t-esc="total_pagos"/></b></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
                     </div>
                 </div>
             </t>
