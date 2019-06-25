@@ -11,23 +11,12 @@ class SesionVenas(models.Model):
     _rec_name = "nombre"
 
     def _compute_facturas_ids(self):
-        ventas_lista = []
-        ventas = self.env['sale.order'].search([['sesion_ventas_id', '=', self.id]])
-        for venta in ventas:
-            ventas_lista.append(venta.name)
-        facturas = self.env['account.invoice'].search([['origin', 'in', ventas_lista]]).ids
-        notas_credito = self.env['account.invoice'].search([('state','in',['open','paid']),('type','=','out_refund'),('sesion_ventas_id','=',self.id)]).ids
-        self.facturas_ids = [(6, 0, facturas+notas_credito)]
+        facturas = self.env['account.invoice'].search([['sesion_ventas_id', '=', self.id]]).ids
+        self.facturas_ids = [(6, 0, facturas)]
 
     def _compute_pagos_ids(self):
-        ventas_lista = []
-        pagos_lista = []
-        pagos = self.env['account.payment'].search([['invoice_ids', '!=', False]])
-        for pago in pagos:
-            for factura in pago.invoice_ids:
-                if factura.id in self.facturas_ids.ids:
-                    pagos_lista.append(pago.id)
-        self.pagos_ids = [(6, 0, pagos_lista)]
+        pagos = self.env['account.payment'].search([['sesion_ventas_id', '=', self.id]]).ids
+        self.pagos_ids = [(6, 0, pagos)]
 
     nombre = fields.Char('Sesión',default=lambda self: _('Nuevo'))
     fecha = fields.Date("Fecha",default=date.today())
