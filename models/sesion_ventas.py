@@ -6,7 +6,7 @@ from odoo.exceptions import UserError, AccessError
 from datetime import date
 import logging
 
-class SesionVenas(models.Model):
+class SesionVentas(models.Model):
     _name = "sesion.ventas"
     _rec_name = "nombre"
 
