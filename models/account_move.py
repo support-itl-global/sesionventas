@@ -2,8 +2,8 @@
 
 from odoo import api, exceptions, fields, models, _
 
-class AccountInvoice(models.Model):
-    _inherit = "account.invoice"
+class AccountMove(models.Model):
+    _inherit = "account.move"
 
     def _default_sesion(self):
         return self.env['sesion.ventas'].search([('estado', '=', 'abierto'), ('usuarios_ids', 'in', [self.env.uid])], limit=1)

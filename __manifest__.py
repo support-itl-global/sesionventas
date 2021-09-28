@@ -14,12 +14,12 @@
     'category': 'Uncategorized',
     'version': '0.1',
 
-    'depends': ['sale'],
+    'depends': ['account','sale'],
 
     'data': [
         'views/sesion_ventas_view.xml',
         'views/sale_views.xml',
-        'views/account_invoice_view.xml',
+        'views/account_move_views.xml',
         'views/account_payment_view.xml',
         'views/report_cierre_caja.xml',
         'data/ir_sequence_data.xml',

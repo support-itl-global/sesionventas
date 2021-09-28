@@ -28,6 +28,8 @@ class ReportCierreCaja(models.AbstractModel):
                 notas_credito_anuldas += factura.amount_total
         return {'facturas': facturas,'notas_credito': notas_credito,'notas_credito_anuladas': notas_credito_anuldas,'facturas_anuladas': facturas_anuladas,'facturas_credito': facturas_credito}
 
+    def a_letras(self,monto):
+        return a_letras.num_a_letras(monto)
 
     def _datos_ingresos(self,o):
         pagos = {}
@@ -36,10 +38,10 @@ class ReportCierreCaja(models.AbstractModel):
         total_caja = 0
         anticipo = 0
         for pago in o.pagos_ids:
-            if pago.invoice_ids == False:
+            if pago.reconciled_invoice_ids == False:
                 anticipo += pago.amount
         for pago in o.pagos_ids:
-            for factura in pago.invoice_ids:
+            for factura in pago.reconciled_invoice_ids:
                 if factura.sesion_ventas_id.id != o.id:
                     pago_credito += pago.amount
                 else:
@@ -98,18 +100,14 @@ class ReportCierreCaja(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        return self.get_report_values(docids, data)
-
-    @api.model
-    def get_report_values(self, docids, data=None):
-        self.model = 'sesion.ventas'
-        docs = self.env[self.model].browse(docids)
+        model = 'sesion.ventas'
+        docs = self.env['sesion.ventas'].browse(docids)
 
         return {
             'doc_ids': docids,
-            'doc_model': self.model,
+            'doc_model': model,
             'docs': docs,
-            'a_letras': a_letras,
+            'a_letras': self.a_letras,
             '_datos_ventas': self._datos_ventas,
             '_datos_ingresos': self._datos_ingresos,
             'facturas_pagos': self.facturas_pagos,
