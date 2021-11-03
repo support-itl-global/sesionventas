@@ -62,35 +62,44 @@ class ReportCierreCaja(models.AbstractModel):
 
     def facturas_pagos(self,o):
         facturas = []
+        facturas_no_repetidas = []
         pagos = []
         ventas_lista = []
         pagos_lista = []
         ventas = self.env['sale.order'].search([['sesion_ventas_id', '=', o.id]])
         for venta in ventas:
             ventas_lista.append(venta.name)
-        facturas_ids = self.env['account.invoice'].search([('origin', 'not in', ventas_lista),('date_invoice','=',o.fecha)])
-        if facturas_ids:
-            for factura in facturas_ids:
-                if factura.payment_ids:
-                    for pago in factura.payment_ids:
-                        pagos_lista.append(pago.id)
+        linea_ids = self.env['account.move.line'].search([('sale_line_ids', '!=', False),('move_id.invoice_date','=',o.fecha)])
+
+        if linea_ids:
+            for linea_factura in linea_ids:
+                if linea_factura.move_id not in facturas_no_repetidas:
+                    facturas_no_repetidas.append(linea_factura.move_id)
+
+        if facturas_no_repetidas:
+            for factura in facturas_no_repetidas:
+                json = factura._get_reconciled_info_JSON_values()
+                if json and 'account_payment_id' in json[0]:
+                    pago_id = self.env['account.payment'].search([('id','=',json[0]['account_payment_id'])])
+                    if pago_id:
+                        pagos_lista.append(pago_id.id)
                 facturas.append({
-                    'fecha': factura.date_invoice,
+                    'fecha': factura.invoice_date,
                     'cliente': factura.partner_id.name,
-                    'numero': factura.number,
-                    'origen': factura.origin,
-                    'ref_pago': factura.reference,
+                    'numero': factura.name,
+                    'origen': factura.source_id.name,
+                    'ref_pago': factura.ref,
                     'total': factura.amount_total,
                     'estado': factura.state,
                 })
-        pagos_ids = self.env['account.payment'].search([('id', 'not in', pagos_lista),('payment_date','=',o.fecha)])
+        pagos_ids = self.env['account.payment'].search([('id', 'not in', pagos_lista),('date','=',o.fecha)])
         if pagos_ids:
             for pago in pagos_ids:
                 pagos.append({
-                    'fecha': pago.payment_date,
+                    'fecha': pago.date,
                     'cliente': pago.partner_id.name,
                     'numero_pago': pago.name,
-                    'origen': pago.communication,
+                    'origen': pago.ref,
                     'diario': pago.journal_id.name,
                     'total': pago.amount,
                     'estado': pago.state,
