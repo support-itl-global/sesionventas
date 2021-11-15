@@ -11,12 +11,26 @@ class SesionVentas(models.Model):
     _rec_name = "nombre"
 
     def _compute_facturas_ids(self):
-        facturas = self.env['account.invoice'].search([['sesion_ventas_id', '=', self.id]]).ids
-        self.facturas_ids = [(6, 0, facturas)]
+        ventas_lista = []
+        ventas = self.env['sale.order'].search([['sesion_ventas_id', '=', self.id]])
+        facturas = []
+        for venta in ventas:
+            if venta.invoice_ids:
+                for factura in venta.invoice_ids:
+                    if factura.move_type == "out_invoice" and factura.state in ['draft','posted']:
+                        facturas.append(factura.id)
+        notas_credito = self.env['account.move'].search([('state','in',['draft','posted']),('move_type','=','out_refund'),('sesion_ventas_id','=',self.id)]).ids
+        self.facturas_ids = [(6, 0, facturas+notas_credito)]
 
     def _compute_pagos_ids(self):
-        pagos = self.env['account.payment'].search([['sesion_ventas_id', '=', self.id]]).ids
-        self.pagos_ids = [(6, 0, pagos)]
+        ventas_lista = []
+        pagos_lista = []
+        pagos = self.env['account.payment'].search([['reconciled_invoice_ids', '!=', False]])
+        for pago in pagos:
+            for factura in pago.reconciled_invoice_ids:
+                if factura.id in self.facturas_ids.ids:
+                    pagos_lista.append(pago.id)
+        self.pagos_ids = [(6, 0, pagos_lista)]
 
     nombre = fields.Char('Sesión',default=lambda self: _('Nuevo'))
     fecha = fields.Date("Fecha",default=date.today())
@@ -26,12 +40,11 @@ class SesionVentas(models.Model):
         ('abierto', 'Abierto'),
         ('cerrado', 'cerrado'),
         ], string='Estado', readonly=True, copy=False, index=True, track_visibility='onchange', default='borrador')
-    facturas_ids = fields.Many2many("account.invoice","sesion_ventas_facturas_rel",string="Facturas",compute='_compute_facturas_ids')
-    pagos_ids = fields.Many2many("account.payment","sesion_ventas_pagos_rel",string="Pagos",compute='_compute_pagos_ids')
+    facturas_ids = fields.Many2many("account.move",string="Facturas",compute='_compute_facturas_ids')
+    pagos_ids = fields.Many2many("account.payment",string="Pagos",compute='_compute_pagos_ids')
     diario_id = fields.Many2one("account.journal","Diario")
-    usuarios_ids = fields.Many2many("res.users",'sesion_ventas_usuarios',string='Usuarios')
+    usuarios_ids = fields.Many2many("res.users",string='Usuarios')
 
-    @api.multi
     def action_abrir_sesion(self):
         for sesion in self:
             values = {}
@@ -39,7 +52,6 @@ class SesionVentas(models.Model):
             sesion.write(values)
         return True
 
-    @api.multi
     def action_cerrar_sesion(self):
         for sesion in self:
             values = {}
@@ -47,7 +59,6 @@ class SesionVentas(models.Model):
             sesion.write(values)
         return True
 
-    @api.multi
     def unlink(self):
         for sesion in self:
             if not sesion.estado == 'borrador':

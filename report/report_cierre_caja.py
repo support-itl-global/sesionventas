@@ -28,6 +28,8 @@ class ReportCierreCaja(models.AbstractModel):
                 notas_credito_anuldas += factura.amount_total
         return {'facturas': facturas,'notas_credito': notas_credito,'notas_credito_anuladas': notas_credito_anuldas,'facturas_anuladas': facturas_anuladas,'facturas_credito': facturas_credito}
 
+    def a_letras(self,monto):
+        return a_letras.num_a_letras(monto)
 
     def _datos_ingresos(self,o):
         pagos = {}
@@ -36,10 +38,10 @@ class ReportCierreCaja(models.AbstractModel):
         total_caja = 0
         anticipo = 0
         for pago in o.pagos_ids:
-            if pago.invoice_ids == False:
+            if pago.reconciled_invoice_ids == False:
                 anticipo += pago.amount
         for pago in o.pagos_ids:
-            for factura in pago.invoice_ids:
+            for factura in pago.reconciled_invoice_ids:
                 if factura.sesion_ventas_id.id != o.id:
                     pago_credito += pago.amount
                 else:
@@ -60,35 +62,44 @@ class ReportCierreCaja(models.AbstractModel):
 
     def facturas_pagos(self,o):
         facturas = []
+        facturas_no_repetidas = []
         pagos = []
         ventas_lista = []
         pagos_lista = []
         ventas = self.env['sale.order'].search([['sesion_ventas_id', '=', o.id]])
         for venta in ventas:
             ventas_lista.append(venta.name)
-        facturas_ids = self.env['account.invoice'].search([('origin', 'not in', ventas_lista),('date_invoice','=',o.fecha)])
-        if facturas_ids:
-            for factura in facturas_ids:
-                if factura.payment_ids:
-                    for pago in factura.payment_ids:
-                        pagos_lista.append(pago.id)
+        linea_ids = self.env['account.move.line'].search([('sale_line_ids', '!=', False),('move_id.invoice_date','=',o.fecha)])
+
+        if linea_ids:
+            for linea_factura in linea_ids:
+                if linea_factura.move_id not in facturas_no_repetidas:
+                    facturas_no_repetidas.append(linea_factura.move_id)
+
+        if facturas_no_repetidas:
+            for factura in facturas_no_repetidas:
+                json = factura._get_reconciled_info_JSON_values()
+                if json and 'account_payment_id' in json[0]:
+                    pago_id = self.env['account.payment'].search([('id','=',json[0]['account_payment_id'])])
+                    if pago_id:
+                        pagos_lista.append(pago_id.id)
                 facturas.append({
-                    'fecha': factura.date_invoice,
+                    'fecha': factura.invoice_date,
                     'cliente': factura.partner_id.name,
-                    'numero': factura.number,
-                    'origen': factura.origin,
-                    'ref_pago': factura.reference,
+                    'numero': factura.name,
+                    'origen': factura.source_id.name,
+                    'ref_pago': factura.ref,
                     'total': factura.amount_total,
                     'estado': factura.state,
                 })
-        pagos_ids = self.env['account.payment'].search([('id', 'not in', pagos_lista),('payment_date','=',o.fecha)])
+        pagos_ids = self.env['account.payment'].search([('id', 'not in', pagos_lista),('date','=',o.fecha)])
         if pagos_ids:
             for pago in pagos_ids:
                 pagos.append({
-                    'fecha': pago.payment_date,
+                    'fecha': pago.date,
                     'cliente': pago.partner_id.name,
                     'numero_pago': pago.name,
-                    'origen': pago.communication,
+                    'origen': pago.ref,
                     'diario': pago.journal_id.name,
                     'total': pago.amount,
                     'estado': pago.state,
@@ -98,18 +109,14 @@ class ReportCierreCaja(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        return self.get_report_values(docids, data)
-
-    @api.model
-    def get_report_values(self, docids, data=None):
-        self.model = 'sesion.ventas'
-        docs = self.env[self.model].browse(docids)
+        model = 'sesion.ventas'
+        docs = self.env['sesion.ventas'].browse(docids)
 
         return {
             'doc_ids': docids,
-            'doc_model': self.model,
+            'doc_model': model,
             'docs': docs,
-            'a_letras': a_letras,
+            'a_letras': self.a_letras,
             '_datos_ventas': self._datos_ventas,
             '_datos_ingresos': self._datos_ingresos,
             'facturas_pagos': self.facturas_pagos,
