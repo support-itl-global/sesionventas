@@ -15,16 +15,16 @@ class ReportCierreCaja(models.AbstractModel):
         notas_credito_anuldas = 0
         facturas_credito = 0
         for factura in o.facturas_ids:
-            if factura.state == 'paid' and factura.type != 'out_refund':
+            if factura.state == 'posted' and factura.move_type != 'out_refund':
                 facturas += factura.amount_total_signed
-            if factura.state == 'cancel' and factura.type != 'out_refund':
+            if factura.state == 'cancel' and factura.move_type != 'out_refund':
                 facturas_anuladas += factura.amount_total_signed
-            if factura.state == 'open' and factura.type != 'out_refund':
+            if factura.state in ['draft','posted'] and factura.move_type != 'out_refund':
                 facturas_credito += factura.amount_total
         for factura in o.facturas_ids:
-            if factura.state in ['open','paid'] and factura.type == 'out_refund':
+            if factura.state in ['draft','posted'] and factura.move_type == 'out_refund':
                 notas_credito += factura.amount_total
-            if factura.state == 'cancel' and factura.type == 'out_refund':
+            if factura.state == 'cancel' and factura.move_type == 'out_refund':
                 notas_credito_anuldas += factura.amount_total
         return {'facturas': facturas,'notas_credito': notas_credito,'notas_credito_anuladas': notas_credito_anuldas,'facturas_anuladas': facturas_anuladas,'facturas_credito': facturas_credito}
 
