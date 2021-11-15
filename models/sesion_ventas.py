@@ -63,11 +63,11 @@ class SesionVentas(models.Model):
         for sesion in self:
             if not sesion.estado == 'borrador':
                 raise UserError(_('No puede eliminar sesion'))
-        return super(SesionVenas, self).unlink()
+        return super(SesionVentas, self).unlink()
 
     @api.model
     def create(self, vals):
         if vals.get('nombre', _('Nuevo')) == _('Nuevo'):
             vals['nombre'] = self.env['ir.sequence'].next_by_code('sesion.ventas') or _('New')
-        result = super(SesionVenas, self).create(vals)
+        result = super(SesionVentas, self).create(vals)
         return result
