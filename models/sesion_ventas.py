@@ -25,11 +25,12 @@ class SesionVentas(models.Model):
     def _compute_pagos_ids(self):
         ventas_lista = []
         pagos_lista = []
-        pagos = self.env['account.payment'].search([['reconciled_invoice_ids', '!=', False]])
+        pagos = self.env['account.payment'].search([('sesion_ventas_id','=',self.id)])
         for pago in pagos:
-            for factura in pago.reconciled_invoice_ids:
-                if factura.id in self.facturas_ids.ids:
-                    pagos_lista.append(pago.id)
+            # for factura in pago.reconciled_invoice_ids:
+            if pago.sesion_ventas_id.id == self.id:
+                # if factura.id in self.facturas_ids.ids or pago.sesion_ventas_id.id == self.id:
+                pagos_lista.append(pago.id)
         self.pagos_ids = [(6, 0, pagos_lista)]
 
     nombre = fields.Char('Sesión',default=lambda self: _('Nuevo'))
