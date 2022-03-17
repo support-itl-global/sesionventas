@@ -17,7 +17,7 @@ class SesionVentas(models.Model):
         for venta in ventas:
             if venta.invoice_ids:
                 for factura in venta.invoice_ids:
-                    if factura.move_type == "out_invoice" and factura.state in ['draft','posted']:
+                    if factura.move_type == "out_invoice" and factura.state in ['draft','posted'] and factura.sesion_ventas_id.id == self.id:
                         facturas.append(factura.id)
         notas_credito = self.env['account.move'].search([('state','in',['draft','posted']),('move_type','=','out_refund'),('sesion_ventas_id','=',self.id)]).ids
         self.facturas_ids = [(6, 0, facturas+notas_credito)]
