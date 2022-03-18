@@ -21,6 +21,10 @@
                                 <td style="text-align:left">Cajero:</td>
                                 <td style="text-align:left"><span t-field="o.responsable_id.name"/></td>
                             </tr>
+                            <tr>
+                                <td style="text-align:left">Tienda:</td>
+                                <td style="text-align:left"><span t-field="o.equipo_venta_id.name"/></td>
+                            </tr>
                         </table>
                     </div>
                     <div class="page">
