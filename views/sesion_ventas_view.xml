@@ -27,6 +27,7 @@
                         </group>
                         <group>
                             <field name="usuarios_ids" widget="many2many_tags"/>
+                            <field name="equipo_venta_id"/>
                         </group>
                     </group>
                     <separator string="Facturas" attrs="{'invisible' : [('estado', '=', 'borrador')]}"/>

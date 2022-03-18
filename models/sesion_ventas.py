@@ -33,6 +33,16 @@ class SesionVentas(models.Model):
                 pagos_lista.append(pago.id)
         self.pagos_ids = [(6, 0, pagos_lista)]
 
+    @api.model
+    def _get_default_equipo(self):
+        equipo_ids = self.env['crm.team'].search([])
+        eq = False
+        if equipo_ids:
+            for equipo in equipo_ids:
+                if self.env.user.id in equipo.member_ids.ids:
+                    eq = equipo.id
+        return eq
+
     nombre = fields.Char('Sesión',default=lambda self: _('Nuevo'))
     fecha = fields.Date("Fecha",default=date.today())
     responsable_id = fields.Many2one("res.users","Responsable",default=lambda self: self.env.user)
@@ -45,6 +55,7 @@ class SesionVentas(models.Model):
     pagos_ids = fields.Many2many("account.payment",string="Pagos",compute='_compute_pagos_ids')
     diario_id = fields.Many2one("account.journal","Diario")
     usuarios_ids = fields.Many2many("res.users",string='Usuarios')
+    equipo_venta_id = fields.Many2one("crm.team",string='Equipo de ventas',change_default=True, default=_get_default_equipo)
 
     def action_abrir_sesion(self):
         for sesion in self:
