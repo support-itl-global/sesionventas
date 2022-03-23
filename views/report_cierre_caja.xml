@@ -196,7 +196,7 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <p align="left"><b><h6>Facturas y pagos sin sesión</h6></b></p>
+                        <!-- <p align="left"><b><h6>Facturas y pagos sin sesión</h6></b></p>
                         <p align="left"><b><h6>Facturas</h6></b></p>
                         <t t-set="total_facturas" t-value="0"/>
                         <table class="table table-condensed">
@@ -265,7 +265,7 @@
                                     <td><b><span t-esc="total_pagos"/></b></td>
                                 </tr>
                             </tbody>
-                        </table>
+                        </table> -->
 
                     </div>
                 </div>
