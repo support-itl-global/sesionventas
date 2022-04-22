@@ -85,7 +85,7 @@ class ReportCierreCaja(models.AbstractModel):
                         if pago.sesion_ventas_id.id != f.sesion_ventas_id.id:
                             factura_otra_sesion = True
                     if factura_otra_sesion:
-                        pago_credito += pago.amount
+                        pago_credito = pago.amount
                 else:
                     pagos[pago.id] = {
                         'journal_id': pago.journal_id.name,
