@@ -32,32 +32,38 @@
                         <center><h4>Resumen de Transacciones</h4></center>
                         <table align="left">
                             <tr>
-                                <td colspan="2" style="text-align:center;width:10cm"><b>Ventas</b></td>
+                                <td colspan="2" style="text-align:center;width:5cm"><b>Ventas</b></td>
+                                <td style="text-align:center;width:1cm"><b>Documentos</b></td>
                             </tr>
                             <tr>
                                 <td style="text-align:left">Facturas Anuladas</td>
                                 <td style="text-align:right"><t t-esc="ventas['facturas_anuladas']" t-options='{"widget": "monetary", "display_currency": o.responsable_id.company_id.currency_id}'/></td>
+                                <td style="text-align:center"><t t-esc="ventas['numero_facturas_anuladas']"/></td>
                             </tr>
                             <tr>
                                 <td style="text-align:left">Notas de credito Anuladas</td>
                                 <td style="text-align:right"><t t-esc="ventas['notas_credito_anuladas']" t-options='{"widget": "monetary", "display_currency": o.responsable_id.company_id.currency_id}'/></td>
+                                <td style="text-align:center"><t t-esc="ventas['numero_notas_credito_anuldas']"/></td>
                             </tr>
                             <tr>
                                 <td style="text-align:left">Facturas </td>
                                 <td style="text-align:right"><t t-esc="ventas['facturas']" t-options='{"widget": "monetary", "display_currency": o.responsable_id.company_id.currency_id}'/></td>
+                                <td style="text-align:center"><t t-esc="ventas['numero_facturas']"/></td>
                             </tr>
                             <tr>
                                 <td style="text-align:left">Notas de Credito</td>
                                 <td style="text-align:right"><t t-esc="ventas['notas_credito']" t-options='{"widget": "monetary", "display_currency": o.responsable_id.company_id.currency_id}'/></td>
+                                <td style="text-align:center"><t t-esc="ventas['numero_notas_credito']"/></td>
                             </tr>
                             <t t-set="ventas_efectivas" t-value="ventas['facturas'] - ventas['notas_credito']"/>
                             <tr>
                                 <td style="text-align:left;border-top: 2px solid"><b>Total ventas</b></td>
-                                <td style="text-align:right;border-top: 2px solid"><b><t t-esc="ventas_efectivas" t-options='{"widget": "monetary", "display_currency": o.responsable_id.company_id.currency_id}'/></b></td>
+                                <td style="text-align:center;border-top: 2px solid"><b><t t-esc="ventas_efectivas" t-options='{"widget": "monetary", "display_currency": o.responsable_id.company_id.currency_id}'/></b></td>
                             </tr>
                             <tr>
                                 <td style="text-align:left">Facturas Credito</td>
                                 <td style="text-align:right"><t t-esc="ventas['facturas_credito']" t-options='{"widget": "monetary", "display_currency": o.responsable_id.company_id.currency_id}'/></td>
+                                <td style="text-align:center"><t t-esc="ventas['numero_facturas_credito']"/></td>
                             </tr>
                             <!-- <tr>
                                 <td style="text-align:left;border-top: 1px solid;border-bottom: 2px solid"><b>Total Ventas</b></td>
@@ -70,7 +76,7 @@
                         </table>
                         <table align="right">
                             <tr>
-                                <td colspan="2" style="text-align:center;width:10cm"><b>Ingresos</b></td>
+                                <td colspan="3" style="text-align:center;width:5cm"><b>Ingresos</b></td>
                             </tr>
                             <t t-foreach="_datos_ingresos(o)['pagos_agrupados']" t-as="pago">
                                 <tr>

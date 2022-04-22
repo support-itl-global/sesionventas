@@ -10,25 +10,48 @@ class ReportCierreCaja(models.AbstractModel):
 
     def _datos_ventas(self,o):
         facturas = 0
+        numero_facturas = 0
         facturas_anuladas = 0
+        numero_facturas_anuladas = 0
         notas_credito = 0
+        numero_notas_credito = 0
         notas_credito_anuldas = 0
+        numero_notas_credito_anuldas = 0
         facturas_credito = 0
+        numero_facturas_credito = 0
+        numero_doc_total_ventas = 0
         for factura in o.facturas_ids:
             if factura.state == 'posted' and factura.move_type != 'out_refund':
                 facturas += factura.amount_total_signed
+                numero_facturas += 1
             if factura.state == 'cancel' and factura.move_type != 'out_refund':
                 facturas_anuladas += factura.amount_total_signed
+                numero_facturas_anuladas += 1
             # if factura.state in ['draft','posted'] and factura.move_type != 'out_refund':
             #     facturas_credito += factura.amount_total
             if factura.state in ['draft','posted'] and factura.move_type != 'out_refund' and factura.amount_residual > 0:
                 facturas_credito += factura.amount_residual
+                numero_facturas_credito += 1
         for factura in o.facturas_ids:
             if factura.state in ['draft','posted'] and factura.move_type == 'out_refund':
                 notas_credito += factura.amount_total
+                numero_notas_credito += 1
             if factura.state == 'cancel' and factura.move_type == 'out_refund':
                 notas_credito_anuldas += factura.amount_total
-        return {'facturas': facturas,'notas_credito': notas_credito,'notas_credito_anuladas': notas_credito_anuldas,'facturas_anuladas': facturas_anuladas,'facturas_credito': facturas_credito}
+                numero_notas_credito_anuldas += 1
+        numero_doc_total_ventas = numero_facturas_anuladas + numero_notas_credito_anuldas + numero_facturas + numero_notas_credito
+
+        return {'facturas': facturas,
+                'numero_facturas':numero_facturas,
+                'notas_credito': notas_credito,
+                'numero_notas_credito': numero_notas_credito,
+                'notas_credito_anuladas': notas_credito_anuldas,
+                'numero_notas_credito_anuldas':numero_notas_credito_anuldas,
+                'facturas_anuladas': facturas_anuladas,
+                'numero_facturas_anuladas':numero_facturas_anuladas,
+                'facturas_credito': facturas_credito,
+                'numero_facturas_credito':numero_facturas_credito,
+                'numero_doc_total_ventas': numero_doc_total_ventas}
 
     def a_letras(self,monto):
         return a_letras.num_a_letras(monto)
@@ -62,7 +85,7 @@ class ReportCierreCaja(models.AbstractModel):
                         if pago.sesion_ventas_id.id != f.sesion_ventas_id.id:
                             factura_otra_sesion = True
                     if factura_otra_sesion:
-                        pago_credito += pago.amount
+                        pago_credito = pago.amount
                 else:
                     pagos[pago.id] = {
                         'journal_id': pago.journal_id.name,
