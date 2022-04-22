@@ -32,8 +32,8 @@
                         <center><h4>Resumen de Transacciones</h4></center>
                         <table align="left">
                             <tr>
-                                <td colspan="2" style="text-align:center;width:10cm"><b>Ventas</b></td>
-                                <td style="text-align:center;"><b>Documentos</b></td>
+                                <td colspan="2" style="text-align:center;width:5cm"><b>Ventas</b></td>
+                                <td style="text-align:center;width:1cm"><b>Documentos</b></td>
                             </tr>
                             <tr>
                                 <td style="text-align:left">Facturas Anuladas</td>
@@ -76,7 +76,7 @@
                         </table>
                         <table align="right">
                             <tr>
-                                <td colspan="2" style="text-align:center;width:10cm"><b>Ingresos</b></td>
+                                <td colspan="3" style="text-align:center;width:5cm"><b>Ingresos</b></td>
                             </tr>
                             <t t-foreach="_datos_ingresos(o)['pagos_agrupados']" t-as="pago">
                                 <tr>
