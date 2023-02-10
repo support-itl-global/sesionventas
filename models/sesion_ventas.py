@@ -1,5 +1,3 @@
-# See LICENSE file for full copyright and licensing details.
-
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 from odoo.exceptions import UserError, AccessError
@@ -11,27 +9,20 @@ class SesionVentas(models.Model):
     _rec_name = "nombre"
 
     def _compute_facturas_ids(self):
-        ventas_lista = []
-        ventas = self.env['sale.order'].search([['sesion_ventas_id', '=', self.id]])
-        facturas = []
-        for venta in ventas:
-            if venta.invoice_ids:
-                for factura in venta.invoice_ids:
-                    if factura.move_type == "out_invoice" and factura.state in ['draft','posted'] and factura.sesion_ventas_id.id == self.id:
-                        facturas.append(factura.id)
-        notas_credito = self.env['account.move'].search([('state','in',['draft','posted']),('move_type','=','out_refund'),('sesion_ventas_id','=',self.id)]).ids
-        self.facturas_ids = [(6, 0, facturas+notas_credito)]
+        for sesion in self:
+            ventas = self.env['sale.order'].search([['sesion_ventas_id', '=', sesion.id]])
+            facturas = []
+            for venta in ventas:
+                if venta.invoice_ids:
+                    for factura in venta.invoice_ids:
+                        if factura.move_type == "out_invoice" and factura.state in ['draft','posted'] and factura.sesion_ventas_id.id == sesion.id:
+                            facturas.append(factura.id)
+            notas_credito = self.env['account.move'].search([('state','in',['draft','posted']),('move_type','=','out_refund'),('sesion_ventas_id','=',sesion.id)]).ids
+            sesion.facturas_ids = [(6, 0, facturas+notas_credito)]
 
     def _compute_pagos_ids(self):
-        ventas_lista = []
-        pagos_lista = []
-        pagos = self.env['account.payment'].search([('sesion_ventas_id','=',self.id)])
-        for pago in pagos:
-            # for factura in pago.reconciled_invoice_ids:
-            if pago.sesion_ventas_id.id == self.id:
-                # if factura.id in self.facturas_ids.ids or pago.sesion_ventas_id.id == self.id:
-                pagos_lista.append(pago.id)
-        self.pagos_ids = [(6, 0, pagos_lista)]
+        for sesion in self:
+            sesion.pagos_ids = [(6, 0, self.env['account.payment'].search([('sesion_ventas_id','=',sesion.id)]).ids)]
 
     @api.model
     def _get_default_equipo(self):
